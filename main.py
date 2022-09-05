@@ -118,7 +118,7 @@ def get_stats(entity, stats_type, timeframe):
         line_date = line['date']
         line_value = line['statistics'][0]['value']
         line_capacity = line['statistics'][0]['capacity']['total']
-        print(line_value)
+        #print(line_value)
         dates.append(line_date)
         values.append(line_value/line_capacity*100)
         #stats[line_date] = line_value
