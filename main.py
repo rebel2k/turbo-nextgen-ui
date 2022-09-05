@@ -106,7 +106,7 @@ def get_stats(entity, stats_type, timeframe):
     url = 'https://'+turboserver+'/api/v3/stats/'+entity
 
     r = requests.post(url, headers = headers, data = payload, verify=False)
-    # print("Payload: "+str(payload))
+    #print("Payload: "+str(payload))
     # print("Status code: "+str(r.status_code))
     # print("Content: "+r.text)
 
@@ -118,8 +118,7 @@ def get_stats(entity, stats_type, timeframe):
         line_date = line['date']
         line_value = line['statistics'][0]['value']
         line_capacity = line['statistics'][0]['capacity']['total']
-        #print(line_date)
-        #print(line_value)
+        print(line_value)
         dates.append(line_date)
         values.append(line_value/line_capacity*100)
         #stats[line_date] = line_value
@@ -274,7 +273,7 @@ def main():
 
                     metrics_container = metrics_overview_tab.container()
                     metrics_container.subheader("Metrics")
-                    timeframe = metrics_container.select_slider('Select the timeframe:', options=['-30d', '-7d', '-3d', '-1d', '-12h', '-2h', '-1h'], key="overview_timeselector")
+                    timeframe = metrics_container.select_slider('Select the timeframe:', options=['-30d', '-7d', '-3d', '-1d', '-12h', '-2h', '-1h'], value='-1d', key="overview_timeselector")
 
                     # Compute metrics
                     #print(data_vcpu.transpose().describe())
@@ -333,7 +332,7 @@ def main():
                     metrics_graphs_container = metrics_graphs.container()
                     metrics_graphs_container.subheader("Metrics Graphs")
 
-                    metrics_timeframe = metrics_graphs_container.select_slider('Select the timeframe:', options=['-30d', '-7d', '-3d', '-1d', '-12h', '-2h', '-1h'], key="metrics_graphs_timeselector")
+                    metrics_timeframe = metrics_graphs_container.select_slider('Select the timeframe:', options=['-30d', '-7d', '-3d', '-1d', '-12h', '-2h', '-1h'], value='-1d', key="metrics_graphs_timeselector")
                     
                     metrics_selector = metrics_graphs_container.multiselect('What metrics do you want to graph?', get_stats_list(selected_vm_uuid))
                     #print(metrics_selector)
