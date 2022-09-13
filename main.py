@@ -4,6 +4,7 @@ import urllib3
 import json
 from datetime import datetime
 import streamlit as st
+import plotly.express as px
 import pandas as pd
 
 urllib3.disable_warnings()
@@ -323,10 +324,18 @@ def main():
                     storage_df = pd.DataFrame(storage_frame)
                     
                     col1, col2 = metrics_container.columns(2)
-                    col1.line_chart(compute_vcpu_df)
-                    col2.line_chart(compute_vmem_df)
-                    col1.line_chart(queue_df)            
-                    col2.line_chart(storage_df)
+                    #col1.line_chart(compute_vcpu_df)
+                    fig_vcpu = px.line(compute_vcpu_df, title="vCPU Utilization", labels={'index': "Date", 'value': "Utilization", 'variable': "Metrics"}, render_mode='auto', range_y=[0,100])
+                    col1.plotly_chart(fig_vcpu, use_container_width=True, sharing="streamlit")
+                    #col2.line_chart(compute_vmem_df)
+                    fig_vmem = px.line(compute_vmem_df, title="vMem Utilization", labels={'index': "Date", 'value': "Utilization", 'variable': "Metrics"}, render_mode='auto', range_y=[0,100])
+                    col2.plotly_chart(fig_vmem, use_container_width=True, sharing="streamlit")
+                    #col1.line_chart(queue_df)
+                    fig_queue = px.line(queue_df, title="Queue Utilization", labels={'index': "Date", 'value': "Utilization", 'variable': "Metrics"}, render_mode='auto', range_y=[0,100])
+                    col1.plotly_chart(fig_queue, use_container_width=True, sharing="streamlit")
+                    #col2.line_chart(storage_df)
+                    fig_storage = px.line(storage_df, title="Storage Utilization", labels={'index': "Date", 'value': "Utilization", 'variable': "Metrics"}, render_mode='auto', range_y=[0,100])
+                    col2.plotly_chart(fig_storage, use_container_width=True, sharing="streamlit")
 
                 with metrics_graphs:
                     metrics_graphs_container = metrics_graphs.container()
@@ -341,7 +350,9 @@ def main():
                         data = get_stats(selected_vm_uuid, metric, metrics_timeframe)
                         frame[metric] = data
                     current_df = pd.DataFrame.from_dict(frame)
-                    metrics_graphs_container.line_chart(current_df)
+                    #metrics_graphs_container.line_chart(current_df)
+                    fig_metric = px.line(current_df, title="Utilization", labels={'index': "Date", 'value': "Utilization", 'variable': "Metrics"}, render_mode='auto', range_y=[0,100])
+                    metrics_graphs_container.plotly_chart(fig_metric, use_container_width=True, sharing="streamlit")
 
 
             elif (selected_page == "Policies"):
