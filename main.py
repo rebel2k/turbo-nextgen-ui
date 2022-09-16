@@ -5,6 +5,7 @@ import json
 from datetime import datetime
 import streamlit as st
 import plotly.express as px
+#import plotly.figure_factory as ff
 import pandas as pd
 
 urllib3.disable_warnings()
@@ -404,6 +405,8 @@ def main():
                     policies_container.dataframe(data=default_policies)
                 else:
                     policies_container.dataframe(data=user_policies)
+                    #fig_user_policies = ff.create_table(user_policies)
+                    #policies_container.plotly_chart(fig_user_policies, use_container_width=True, sharing="streamlit")
 
 if __name__ == '__main__':
     main()
