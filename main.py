@@ -64,20 +64,22 @@ def get_vms_list():
         host_name = ''
         for vm in response_dict:
             # print("VM: " + vm['uuid'] + " - " + vm['displayName']+ " - " + vm['className'] +  " - " +  vm['environmentType'])
-            vm_uuid = vm['uuid']
-            vm_name = vm['displayName']
-            # vm_environment = vm['environmentType']
-            for provider in vm['providers']:
-                #print("Provider: " + provider['uuid'] + " - " + provider['displayName'] + " - " + provider['className'])
-                if (provider['className'] == "PhysicalMachine"):
-                    # print("Provider: " + provider['uuid'] + " - " + provider['displayName'] + " - " + provider['className'])
-                    host_uuid = provider['uuid']
-                    host_name = provider['displayName']
-            # Prepare the record
-            # print(time + " - " + vm_uuid + " - " + vm_name + " - " + host_uuid + " - " + host_name)
-            # Store the VM in a dictionary
-            vms[vm_uuid] = vm_name + " # " + vm_uuid
-            #vms.append(vm_name + " - " + vm_uuid)
+            if (vm['environmentType'] == "ONPREM"): # fix to make sure HYBRID environmentType are not parsed (bug introduced in the API in 8.6.3)
+                vm_uuid = vm['uuid']
+                vm_name = vm['displayName']
+                # vm_environment = vm['environmentType']
+                # print("VM UUID: " + vm_uuid + " - VM Name: " + vm_name)
+                for provider in vm['providers']:
+                    #print("Provider: " + provider['uuid'] + " - " + provider['displayName'] + " - " + provider['className'])
+                    if (provider['className'] == "PhysicalMachine"):
+                        # print("Provider: " + provider['uuid'] + " - " + provider['displayName'] + " - " + provider['className'])
+                        host_uuid = provider['uuid']
+                        host_name = provider['displayName']
+                # Prepare the record
+                # print(time + " - " + vm_uuid + " - " + vm_name + " - " + host_uuid + " - " + host_name)
+                # Store the VM in a dictionary
+                vms[vm_uuid] = vm_name + " # " + vm_uuid
+                #vms.append(vm_name + " - " + vm_uuid)
         i += vms_cursor_steps+1
     return vms
 
@@ -98,7 +100,7 @@ def get_stats_list(entity):
     return stats_list
 
 def get_stats(entity, stats_type, timeframe):
-    # Get VCPU stats of the selected VM and store them
+    # Get stats of the selected VM and store them
     stats = {}
     headers = {'accept': 'application/json', 'Content-Type': 'application/json', 'cookie': authentication_token}
     #payload = "{ \"scopes\": [ \"" + stats_entity + "\" ], \"period\": { \"startDate\": \"-2h\", \"statistics\": [ { \"name\": \"VCPU\"}, {\"name\": \"VMem\" }] }, \"relatedType\": \"VirtualMachine\" }"
@@ -118,10 +120,15 @@ def get_stats(entity, stats_type, timeframe):
     for line in json_stats:
         line_date = line['date']
         line_value = line['statistics'][0]['value']
-        line_capacity = line['statistics'][0]['capacity']['total']
         #print(line_value)
         dates.append(line_date)
-        values.append(line_value/line_capacity*100)
+        if not (line['statistics'][0].get("capacity") is None): # To make sure there's a capacity section (for certain metric it's not the case)
+            line_capacity = line['statistics'][0]['capacity']['total']
+            #print(line_capacity)
+            values.append(line_value/line_capacity*100)
+        else: # if there's no capacity, just return the value
+            #print("Doesn't exist")
+            values.append(line_value)
         #stats[line_date] = line_value
     #print(stats)
     index = pd.DatetimeIndex(dates)
