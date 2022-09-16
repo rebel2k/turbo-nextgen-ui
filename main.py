@@ -100,13 +100,18 @@ def get_stats_list(entity):
     #print(stats_list)
     return stats_list
 
-def get_stats(entity, stats_type, timeframe):
+def get_stats(entity, stats_list_array, timeframe):
     # Get stats of the selected VM and store them
     stats = {}
+    stats_list = []
     headers = {'accept': 'application/json', 'Content-Type': 'application/json', 'cookie': authentication_token}
     #payload = "{ \"scopes\": [ \"" + stats_entity + "\" ], \"period\": { \"startDate\": \"-2h\", \"statistics\": [ { \"name\": \"VCPU\"}, {\"name\": \"VMem\" }] }, \"relatedType\": \"VirtualMachine\" }"
     #url = 'https://'+turboserver+'/api/v3/stats'
-    payload = "{\"statistics\":[{\"name\":\""+stats_type+"\",\"relatedEntityType\":\"VirtualMachine\",\"groupBy\":[\"\"],\"filters\":[]}],\"startDate\":\""+timeframe+"\"}"
+    for stat in stats_list_array:
+        stats_list.append({"name": stat, "relatedEntityType": "VirtualMachine"})
+    #print(json.dumps(stats_list))
+    #print(stats_list)
+    payload = "{\"statistics\":"+json.dumps(stats_list)+",\"startDate\":\""+timeframe+"\"}"
     url = 'https://'+turboserver+'/api/v3/stats/'+entity
 
     r = requests.post(url, headers = headers, data = payload, verify=False)
